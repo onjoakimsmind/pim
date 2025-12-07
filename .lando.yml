@@ -1,0 +1,42 @@
+name: pim
+recipe: laravel
+env_file:
+  - db.env
+proxy:
+  appserver:
+    - pim.lndo.site
+  mailhog:
+    - mail.togglr.lndo.site
+services:
+  appserver:
+    config: {}
+    composer_version: '2.9.2'
+    type: php:8.4
+    via: apache:2.4
+    ssl: true
+    webroot: public
+    xdebug: false
+  mailhog:
+    type: mailhog
+    hogfrom:
+      - appserver
+  database: disabled
+  dragonfly:
+    type: compose
+    services:
+      image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
+      ports:
+        - '6379:6379'
+      command: ['dragonfly', '--port=6379', '--bind=0.0.0.0']
+tooling:
+  composer:
+    service: appserver
+    cmd: composer --ansi
+  php:
+    service: appserver
+    cmd: php
+  laravel:
+    service: appserver
+  artisan:
+    service: appserver
+    cmd: php artisan
